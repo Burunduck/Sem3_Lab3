@@ -106,7 +106,6 @@ resultData getTableByRegion(sourceData *source)
                 countOfLines++;
             }
         }
-        cout << countOfColumns << " " << countOfLines << endl;
         result.tableDataByRegion = loadTableData(tableDataInstring, countOfLines, countOfColumns);
     }
     else
@@ -121,6 +120,7 @@ resultData calcMetrics(sourceData *source)
 {
     resultData result = getTableByRegion(source);
     double sum = 0;
+    double max = atof(result.tableDataByRegion.tableInMatrix[1][source->column].c_str());
     int counter = 0;
     double min = atof(result.tableDataByRegion.tableInMatrix[1][source->column].c_str());
     vector<double> vectorForMedian;
@@ -132,11 +132,16 @@ resultData calcMetrics(sourceData *source)
         {
             min = atof(result.tableDataByRegion.tableInMatrix[i][source->column].c_str());
         }
+        if(atof(result.tableDataByRegion.tableInMatrix[i][source->column].c_str()) > max)
+        {
+            max = atof(result.tableDataByRegion.tableInMatrix[i][source->column].c_str());
+        }
         vectorForMedian.push_back(atof(result.tableDataByRegion.tableInMatrix[i][source->column].c_str()));
     }
 
     result.metrics.average = sum / (counter);
     result.metrics.min = min;
+    result.metrics.max = max;
     sort(vectorForMedian.begin(), vectorForMedian.end());
     if((counter % 2) ==0)
     {

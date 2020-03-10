@@ -21,24 +21,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     ui->btnLoadTable->setDisabled(true);
     ui->btnCountMetrics->setDisabled(true);
-    QChart *chart = new QChart();
-    QLineSeries *series = new QLineSeries();
-    series->append(0, 6);
-    series->append(2, 4);
-    series->append(3, 8);
-    series->append(7, 4);
-    series->append(10, 5);
-    *series << QPointF(11, 1) << QPointF(13, 3) << QPointF(17, 6) << QPointF(18, 3) << QPointF(20, 2);
-    chart->legend()->hide();
-    chart->addSeries(series);
-    chart->createDefaultAxes();
-    chart->setTitle("Simple line chart example");
-    QChartView *chartView = new QChartView(chart);
-    chartView->setRenderHint(QPainter::Antialiasing);
-    QMainWindow window;
-    window.setCentralWidget(chartView);
-    window.resize(400, 300);
-//    window.show();
+    ui->btnDrawGraphic->setDisabled(true);
 }
 
 MainWindow::~MainWindow()
@@ -81,6 +64,7 @@ void MainWindow::initTableWidget()
             }
         }
         ui->btnCountMetrics->setDisabled(false);
+        ui->btnDrawGraphic->setDisabled(false);
     }
     else
     {
@@ -104,7 +88,7 @@ void MainWindow::on_btnCountMetrics_clicked()
     resultData result = command(getTable, &source);
     if(result.tableDataByRegion.countOfLines > 2)
     {
-        if(ui->lineEditChooseColumn->text().toInt() -1  == 0 || ui->lineEditChooseColumn->text().toInt() - 1 > 1 & ui->lineEditChooseColumn->text().toInt() -1 < 7)
+        if(ui->lineEditChooseColumn->text().toInt() - 1 == 0 || ui->lineEditChooseColumn->text().toInt() - 1 > 1 & ui->lineEditChooseColumn->text().toInt() -1 < 7)
         {
             result = command(calculateMetrics, &source);
             ui->lblMin->setText("Min: " + QString::number(result.metrics.min));
@@ -124,4 +108,65 @@ void MainWindow::on_btnCountMetrics_clicked()
             msgBox.setText("Sorry, we don`t have this region in our table data");
             msgBox.exec();
     }
+}
+
+void MainWindow::on_btnDrawGraphic_clicked()
+{
+
+    QChart *chart = new QChart();
+    QLineSeries *series = new QLineSeries();
+
+    sourceData source;
+    source.path = ui->lineEditFilePath->text().toStdString();
+    source.region = ui->lineEditChooseRegion->text().toStdString();
+    source.column = ui->lineEditChooseColumn->text().toInt() - 1;
+    resultData result = command(getTable, &source);
+    if(result.tableDataByRegion.countOfLines > 2)
+    {
+        if(ui->lineEditChooseColumn->text().toInt() - 1 > 1 & ui->lineEditChooseColumn->text().toInt() -1 < 7 )
+        {
+            result = command(calculateMetrics, &source);
+            for (int i = 1; i < result.tableDataByRegion.countOfLines; i++)
+            {
+                series->append(atoi(result.tableDataByRegion.tableInMatrix[i][0].c_str()), atof(result.tableDataByRegion.tableInMatrix[i][source.column].c_str()));
+            }
+        }
+        else
+        {
+            QMessageBox msgBox;
+            msgBox.setText("Please enter a correct data for column");
+            msgBox.exec();
+            return;
+        }
+    }
+    else
+    {
+            QMessageBox msgBox;
+            msgBox.setText("Sorry, we don`t have this region in our table data");
+            msgBox.exec();
+            return;
+    }
+
+    chart->legend()->hide();
+    chart->addSeries(series);
+    chart->setTitle("Simple line chart example");
+
+    QValueAxis *axisX = new QValueAxis();
+    axisX->setTitleText("Data point");
+    axisX->setLabelFormat("%i");
+    axisX->setTickCount(series->count());
+    axisX->setLabelsAngle(-90);
+    axisX->setMinorTickCount(2);
+    chart->addAxis(axisX, Qt::AlignBottom);
+    series->attachAxis(axisX);
+
+    QValueAxis *axisY = new QValueAxis();
+    axisY->setTitleText("Data point");
+    axisY->setRange(result.metrics.min, result.metrics.max);
+    axisY->setMinorTickCount(10);
+    chart->addAxis(axisY, Qt::AlignLeft);
+    series->attachAxis(axisY);
+
+    ui->graphicsView->setChart(chart);
+    ui->graphicsView->setRenderHint(QPainter::Antialiasing);
 }

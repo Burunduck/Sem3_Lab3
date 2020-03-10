@@ -15,6 +15,7 @@ struct Metrics
     double min;
     double average;
     double median;
+    double max;
 };
 
 enum operationType

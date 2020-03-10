@@ -1,5 +1,5 @@
 #ifndef MAINWINDOW_H
-#define MAINWINDOW_H=
+#define MAINWINDOW_H
 #include <QMainWindow>
 
 QT_BEGIN_NAMESPACE
@@ -21,6 +21,8 @@ private slots:
     void on_btnLoadTable_clicked();
 
     void on_btnCountMetrics_clicked();
+
+    void on_btnDrawGraphic_clicked();
 
 private:
     Ui::MainWindow *ui;
