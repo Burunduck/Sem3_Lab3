@@ -11,7 +11,7 @@ int countOfSubstrInStr(string substr, string str)
 {
     int count = 0;
     int n = 0;
-    while ((n = str.find(substr, n) + 1) != 0)
+    while (n = str.find(substr, n) + 1 != 0)
     {
         count++;
     }
@@ -108,10 +108,6 @@ resultData getTableByRegion(sourceData *source)
         }
         result.tableDataByRegion = loadTableData(tableDataInstring, countOfLines, countOfColumns);
     }
-    else
-    {
-        cout << "Error with opening file.csv" << endl;
-    }
 
     return result;
 }
@@ -126,17 +122,18 @@ resultData calcMetrics(sourceData *source)
     vector<double> vectorForMedian;
     for(int i = 1; i < result.tableDataByRegion.countOfLines; i++)
     {
-        sum +=  atof(result.tableDataByRegion.tableInMatrix[i][source->column].c_str());
+        double currentCell = atof(result.tableDataByRegion.tableInMatrix[i][source->column].c_str());
+        sum += currentCell;
         counter++;
-        if(atof(result.tableDataByRegion.tableInMatrix[i][source->column].c_str()) < min)
+        if(currentCell < min)
         {
-            min = atof(result.tableDataByRegion.tableInMatrix[i][source->column].c_str());
+            min = currentCell;
         }
-        if(atof(result.tableDataByRegion.tableInMatrix[i][source->column].c_str()) > max)
+        if(currentCell > max)
         {
-            max = atof(result.tableDataByRegion.tableInMatrix[i][source->column].c_str());
+            max = currentCell;
         }
-        vectorForMedian.push_back(atof(result.tableDataByRegion.tableInMatrix[i][source->column].c_str()));
+        vectorForMedian.push_back(currentCell);
     }
 
     result.metrics.average = sum / (counter);
